@@ -33,6 +33,7 @@ def check_tags():
 
 
 def handle_special_characters(name: str):
+	# This needs to be expanded, ctors and dtors in particular throw it off, as do operators.
 	if len(name.split(' ')) == 1:
 		return name
 	else:
@@ -109,6 +110,11 @@ with open(function_file, 'r') as f:
 					old_name = old_func.getName()
 					# print(f"Overwriting {old_func.getName()} with {demangled_name}")
 					try:
+						# We want to check the namespace, as we don't want things of the form:
+						# Alpha::Beta::function::Alpha::Beta::function in Ghidra. Ghidra will automatically pick up the
+						# namespace from the demangled name.
+						#
+						# This also means that we want to change things to be a __thiscall if we know it's part of a sub-namespace.
 						old_func.setName(demangled_name, SourceType.IMPORTED)
 					except:
 						pass
